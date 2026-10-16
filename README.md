@@ -1,16 +1,11 @@
 <div align="center">
 
-> **Competition data is not in this repository.** Radiology report text, the 58 expert
-> labels and every per-study label or prediction table were removed before publication,
-> as the RSNA competition rules require. Scripts that read them expect the competition
-> files under `data/` and the generated tables under `artifacts/`.
-
 # RSNA 2026 Knee MRI — Abnormality Detection
 
 **Detecting 12 knee pathologies from MRI, trained on 58 expert labels.**
 
-[![Public LB](https://img.shields.io/badge/public%20LB-0.948-1f6feb?style=for-the-badge)](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/leaderboard)
-[![Rank](https://img.shields.io/badge/rank-74%20%2F%204%2C279-2da44e?style=for-the-badge)](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/leaderboard)
+[![Public LB](https://img.shields.io/badge/public%20LB-0.949-1f6feb?style=for-the-badge)](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/leaderboard)
+[![Rank](https://img.shields.io/badge/final%20public%20rank-1%2C944%20%2F%206%2C073-2da44e?style=for-the-badge)](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/leaderboard)
 [![Peak](https://img.shields.io/badge/peak%20rank-3rd%20%2F%202%2C408-d29922?style=for-the-badge)](#trajectory)
 [![Top](https://img.shields.io/badge/top-1.7%25-8250df?style=for-the-badge)](#)
 [![Submissions](https://img.shields.io/badge/submissions%20used-36-6e7781?style=for-the-badge)](#)
@@ -18,6 +13,11 @@
 <sub>Deadline 2026-10-22 · 84 models trained · 196 queued jobs · a 6,600-line lab notebook</sub>
 
 </div>
+
+> **Competition data is not in this repository.** Radiology report text, the 58 expert
+> labels and every per-study label or prediction table were removed before publication,
+> as the RSNA competition rules require. Scripts that read them expect the competition
+> files under `data/` and the generated tables under `artifacts/`.
 
 ---
 
