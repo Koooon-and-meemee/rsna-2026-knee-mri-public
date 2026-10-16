@@ -1,0 +1,28 @@
+{
+ "gold_auc": 0.8996569559578943,
+ "per_finding": {
+  "ACL": 0.9350490196078431,
+  "MCL": 0.9319727891156463,
+  "Medial Meniscus": 0.8990384615384616,
+  "Lateral Meniscus": 0.7987577639751552,
+  "Medial OA": 0.9736434108527131,
+  "Lateral OA": 0.8684719535783366,
+  "PF OA": 0.842985842985843,
+  "Effusion": 0.9565217391304348,
+  "Synovitis": 0.7837514934289127,
+  "Baker's": 0.980072463768116,
+  "Contusion": 0.9311740890688258,
+  "Fracture": 0.8944444444444444
+ },
+ "epoch": 5,
+ "cfg": {
+  "arch": "slicenet",
+  "backbone": "convnext_nano.in12k_ft_in1k",
+  "width": 24,
+  "size": 128,
+  "depth": 32,
+  "lr": 0.0003,
+  "batch": 8,
+  "pos_weight": false
+ }
+}

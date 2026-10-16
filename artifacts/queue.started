@@ -1,0 +1,221 @@
+2026-08-08 20:38:53  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 8 --upsample 224 --aug --tag m12up224
+2026-08-08 21:35:32  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --tag m17up224
+2026-08-08 22:50:55  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --tag m18cos
+2026-08-09 00:06:18  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 8 --lr 3e-4 --epochs 12 --aug --cosine --tag m19cos128
+2026-08-09 00:33:40  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m21real256
+2026-08-09 00:37:05  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 224 --stream --pool 8 --aug --cosine --tag m20real224
+2026-08-09 00:41:27  uv run python -u src/train_image.py --arch slicenet --backbone tf_efficientnetv2_s.in21k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m22effv2
+2026-08-09 00:45:49  uv run python -u src/train_image.py --arch slicenet --backbone swin_base_patch4_window7_224.ms_in22k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --upsample 224 --aug --cosine --tag m23swin
+2026-08-09 01:24:11  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m21real256
+2026-08-09 01:30:34  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m21real256
+2026-08-09 01:57:56  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m21real256
+2026-08-09 03:17:19  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 224 --stream --pool 8 --aug --cosine --tag m20real224
+2026-08-09 03:37:42  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m21real256
+2026-08-09 07:19:00  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 224 --stream --pool 8 --aug --cosine --tag m20real224
+2026-08-09 10:56:25  uv run python -u src/train_study.py --backbone convnext_tiny.in12k_ft_in1k --studies 2 --epochs 48 --upsample 224 --aug --cosine --tag m24study48
+2026-08-09 13:43:49  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --split-col split_scanner --tag m26scanner
+2026-08-09 14:59:11  uv run python -u src/train_image.py --arch slicenet --backbone tf_efficientnetv2_s.in21k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m22effv2
+2026-08-09 19:38:36  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --backbone-lr 1e-4 --epochs 16 --size 256 --stream --pool 8 --aug --cosine --tag m25blr
+2026-08-12 21:48:20  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m28dino336
+2026-08-12 21:48:42  uv run python -u src/oof_predict.py --folds 5 --epochs 6
+2026-08-12 22:04:03  uv run python -u src/blend_targets.py --teacher-weight 0.4
+2026-08-12 22:06:24  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --dataset image_dataset_blend40.parquet --tag m29blend40
+2026-08-12 22:08:44  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m28dino336
+2026-08-13 03:07:09  uv run python -u src/oof_predict.py --folds 5 --epochs 6
+2026-08-13 03:09:30  uv run python -u src/blend_targets.py --teacher-weight 0.4
+2026-08-13 03:11:50  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --dataset image_dataset_blend40.parquet --tag m29blend40
+2026-08-13 03:14:10  uv run python -u src/train_image.py --arch slicenet --backbone swin_base_patch4_window7_224.ms_in22k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 224 --aug --cosine --tag m23swin
+2026-08-13 13:42:38  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --tag m31newshards
+2026-08-13 13:44:00  uv run python -u src/oof_predict.py --folds 5 --epochs 6
+2026-08-13 13:46:21  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --tag m31newshards
+2026-08-13 16:27:44  uv run python -u src/blend_targets.py --teacher-weight 0.4
+2026-08-13 16:30:05  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --dataset image_dataset_blend40.parquet --tag m32blend40new
+2026-08-13 18:22:10  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --dataset image_dataset_blend40.parquet --tag m32blend40new
+2026-08-19 14:07:46  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m33up336new
+2026-08-19 14:08:42  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m33up336new
+2026-08-19 19:24:08  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --dataset image_dataset_blend40.parquet --tag m32blend40new
+2026-08-19 23:44:34  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new --halves
+2026-08-20 01:57:25  uv run python -u src/ensemble.py m31newshards m33up336new --halves
+2026-08-20 02:03:47  uv run python -u src/ensemble.py m31newshards m32blend40new --halves
+2026-08-20 02:10:09  uv run python -u src/ensemble.py m33up336new m32blend40new --halves
+2026-08-20 02:33:32  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m34dinonew
+2026-08-21 10:34:41  uv run python -u src/ensemble.py m31newshards m33up336new m34dinonew --halves
+2026-08-21 10:41:03  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m34dinonew --halves
+2026-08-21 10:48:25  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --depth 48 --aug --cosine --tag m35depth48
+2026-08-21 10:51:48  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 3e-4 --backbone-lr 3e-5 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m36dinolr
+2026-08-21 21:33:30  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 3e-4 --backbone-lr 3e-5 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m36dinolr
+2026-08-22 00:08:54  uv run python -u src/ensemble.py m31newshards m33up336new m36dinolr --halves
+2026-08-22 00:15:17  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m36dinolr --halves
+2026-08-23 15:07:16  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 192 --stream --pool 8 --upsample 288 --aug --cosine --tag m37up288
+2026-08-23 19:50:43  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 --halves
+2026-08-23 19:58:06  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 --halves
+2026-08-23 20:05:28  uv run python -u src/ensemble.py m34dinonew m36dinolr --halves
+2026-08-23 20:10:50  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 1 --tag m38seed1
+2026-08-23 21:26:13  uv run python -u src/ensemble.py m31newshards m38seed1 --halves
+2026-08-23 21:31:35  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m38seed1 --halves
+2026-08-24 00:04:00  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 m38seed1 --halves
+2026-08-24 00:12:22  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --halves
+2026-08-24 00:20:44  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 2 --tag m39seed2
+2026-08-24 01:36:07  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --seed 1 --tag m40m33s1
+2026-08-24 06:54:35  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m39seed2 --halves
+2026-08-24 07:01:57  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m39seed2 m40m33s1 --halves
+2026-08-24 07:10:19  uv run python -u src/train_image.py --arch slicenet --backbone convnext_small.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --tag m43small
+2026-08-24 09:08:43  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --pos-weight --tag m44posw
+2026-08-24 10:24:06  uv run python -u src/oof_predict.py --folds 5 --epochs 12
+2026-08-24 15:06:33  uv run python -u src/blend_targets.py --teacher-weight 0.4 --out image_dataset_blend40oof12.parquet
+2026-08-24 15:08:53  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --dataset image_dataset_blend40oof12.parquet --tag m46blend12
+2026-08-24 16:24:17  uv run python -u src/blend_targets.py --teacher-weight 0.25 --out image_dataset_blend25oof12.parquet
+2026-08-24 16:26:37  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --dataset image_dataset_blend25oof12.parquet --tag m47blend25
+2026-08-24 17:42:00  uv run python -u src/blend_targets.py --teacher-weight 0.6 --out image_dataset_blend60oof12.parquet
+2026-08-24 17:44:21  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --dataset image_dataset_blend60oof12.parquet --tag m48blend60
+2026-08-24 19:00:44  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 1 --dataset image_dataset_blend40oof12.parquet --tag m49blend40s1
+2026-08-24 20:17:07  uv run python -u src/ensemble.py m46blend12 m47blend25 m48blend60 --halves
+2026-08-24 20:22:30  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m46blend12 --halves
+2026-08-24 20:29:52  uv run python -u src/ensemble.py m46blend12 m49blend40s1 --halves
+2026-08-24 20:35:14  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 16 --size 192 --stream --pool 8 --upsample 288 --aug --cosine --seed 1 --tag m45m37s1
+2026-08-25 01:18:41  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m45m37s1 --halves
+2026-08-25 01:27:03  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --depth 48 --volumes volumes48 --aug --cosine --tag m50depth48
+2026-08-25 03:25:27  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m50depth48 --halves
+2026-08-25 04:44:13  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --tag m51radimagenet
+2026-08-25 06:11:37  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m51radimagenet --halves
+2026-08-25 06:18:59  uv run python -u src/ensemble.py m31newshards --halves
+2026-08-25 06:24:21  uv run python -u src/ensemble.py m31newshards --slice-stride 2 --halves
+2026-08-25 06:29:43  uv run python -u src/ensemble.py m31newshards --slice-stride 4 --halves
+2026-08-25 06:35:05  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --slice-stride 2 --halves
+2026-08-25 13:37:34  uv run python -u src/train_image.py --arch slicenet --backbone convnext_nano.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --tag m52nano
+2026-08-25 14:30:57  uv run python -u src/ensemble.py m52nano --halves
+2026-08-25 14:36:20  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --neighbour-channels --aug --cosine --tag m53nbr
+2026-08-25 15:52:43  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m53nbr --halves
+2026-08-25 16:00:05  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --slice-attn 2 --aug --cosine --tag m54attn
+2026-08-25 17:17:28  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m54attn --halves
+2026-08-25 19:34:53  uv run python -u src/ensemble.py m53nbr --halves
+2026-08-25 19:40:15  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m53nbr --halves
+2026-08-25 19:47:37  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m53nbr m54attn --halves
+2026-08-25 19:55:59  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 256 --stream --pool 8 --upsample 336 --neighbour-channels --aug --cosine --tag m55nbr33
+2026-08-25 23:57:25  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 192 --stream --pool 8 --upsample 288 --neighbour-channels --aug --cosine --tag m56nbr37
+2026-08-26 03:30:51  uv run python -u src/ensemble.py m53nbr m55nbr33 m56nbr37 m57nbr38 --halves
+2026-08-26 03:31:13  uv run python -u src/ensemble.py m53nbr m55nbr33 m56nbr37 m57nbr38 m31newshards m33up336new --halves
+2026-08-26 03:34:35  uv run python -u src/ensemble.py m53nbr m55nbr33 m56nbr37 --halves
+2026-08-26 03:41:58  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 m55nbr33 --halves
+2026-08-26 05:20:21  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --max-series 1 --halves
+2026-08-26 05:25:44  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --max-series 2 --halves
+2026-08-26 05:32:06  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --max-series 3 --halves
+2026-08-26 05:38:28  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --max-series 4 --halves
+2026-08-26 07:52:52  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --max-series 3 --by-plane --halves
+2026-08-26 07:59:14  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --max-series 4 --by-plane --halves
+2026-08-26 09:19:38  uv run python -u src/ensemble.py m31newshards m33up336new --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 09:25:00  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 09:31:22  uv run python -u src/ensemble.py m33up336new --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 09:36:44  uv run python -u src/ensemble.py m31newshards m33up336new m37up288 m38seed1 --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 10:11:07  uv run python -u src/ensemble.py m31newshards m33up336new --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 10:16:29  uv run python -u src/ensemble.py m31newshards m33up336new --halves --by-plane --max-series 4 --slice-stride 2
+2026-08-26 10:21:51  uv run python -u src/ensemble.py m31newshards m33up336new --halves --slice-stride 2
+2026-08-26 10:27:13  uv run python -u src/ensemble.py m31newshards m33up336new --halves --by-plane --max-series 3 --slice-stride 4
+2026-08-26 11:16:36  uv run python -u src/ensemble.py m31newshards m38seed1 --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 11:21:58  uv run python -u src/ensemble.py m31newshards m38seed1 --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 11:27:21  uv run python -u src/ensemble.py m31newshards --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 11:31:43  uv run python -u src/ensemble.py m33up336new --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 11:38:05  uv run python -u src/ensemble.py m52nano --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 11:42:27  uv run python -u src/ensemble.py m52nano m31newshards --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 11:47:49  uv run python -u src/ensemble.py m52nano m31newshards --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 11:53:11  uv run python -u src/ensemble.py m52nano m38seed1 --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 11:59:34  uv run python -u src/ensemble.py m52nano m38seed1 --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 12:26:56  uv run python -u src/train_image.py --arch slicenet --backbone convnext_nano.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 1 --tag m58nanos1
+2026-08-26 13:20:19  uv run python -u src/train_image.py --arch slicenet --backbone convnext_nano.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 192 --aug --cosine --tag m59nano192
+2026-08-26 14:01:42  uv run python -u src/train_image.py --arch slicenet --backbone convnext_nano.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 288 --aug --cosine --tag m60nano288
+2026-08-26 15:27:05  uv run python -u src/ensemble.py m52nano m58nanos1 --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 15:32:27  uv run python -u src/ensemble.py m52nano m58nanos1 --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 15:37:49  uv run python -u src/ensemble.py m59nano192 m52nano --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 15:43:12  uv run python -u src/ensemble.py m59nano192 m52nano --halves --by-plane --max-series 2 --slice-stride 2
+2026-08-26 15:48:34  uv run python -u src/ensemble.py m59nano192 m38seed1 --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 15:53:56  uv run python -u src/train_image.py --arch slicenet --backbone convnext_nano.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 336 --aug --cosine --tag m61nano336
+2026-08-26 17:50:20  uv run python -u src/ensemble.py m60nano288 m52nano --halves --by-plane --max-series 3 --slice-stride 2
+2026-08-26 17:55:42  uv run python -u src/ensemble.py m60nano288 m59nano192 --halves --by-plane --max-series 3 --slice-stride 2
+2026-09-04 14:36:52  uv run python -u src/ensemble.py m31newshards m32blend40new m33up336new m34dinonew m36dinolr m37up288 m38seed1 m39seed2 m40m33s1 m43small m46blend12 m47blend25 m48blend60 m49blend40s1 m50depth48 m51radimagenet m52nano m53nbr m54attn m55nbr33 m56nbr37 m58nanos1 m59nano192 m60nano288 m61nano336 --save-preds artifacts/preds_pool.npz
+2026-09-04 14:54:14  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --split-col fold0 --tag m63f0
+2026-09-04 16:05:37  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --split-col fold1 --tag m63f1
+2026-09-04 17:17:01  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --split-col fold2 --tag m63f2
+2026-09-04 18:28:24  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --split-col fold3 --tag m63f3
+2026-09-04 19:39:47  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --split-col fold4 --tag m63f4
+2026-09-04 20:51:10  uv run python -u src/fold_oof.py --prefix m63f --folds 5
+2026-09-04 21:02:33  uv run python -u src/ensemble.py m63f0 m63f1 m63f2 m63f3 m63f4 --halves
+2026-09-04 21:08:55  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --slice-gru 1 --tag m64gru
+2026-09-04 22:26:18  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --dataset image_dataset_blend40oof63.parquet --tag m65blend40oof
+2026-09-04 23:41:42  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --dataset image_dataset_blend60oof63.parquet --tag m66blend60oof
+2026-09-06 14:21:45  uv run python -u src/ensemble.py m64gru --save-preds artifacts/preds_m64gru.npz
+2026-09-06 14:27:07  uv run python -u src/merge_preds.py artifacts/preds_pool.npz artifacts/preds_m64gru.npz -o artifacts/preds_pool2.npz
+2026-09-06 14:31:18  uv run python -u src/ensemble_search.py artifacts/preds_pool2.npz --keep m31newshards m33up336new m32blend40new m37up288 --max-members 6 --top 20
+2026-09-06 14:31:40  uv run python -u src/ensemble_search.py artifacts/preds_pool2.npz --keep m31newshards m33up336new m32blend40new m37up288 --max-members 6 --top 20 --rank
+2026-09-06 14:32:03  uv run python -u src/saliency_probe.py m31newshards --max-series 1200 --batch 4 --control
+2026-09-06 14:35:25  uv run python -u src/saliency_probe.py m33up336new --max-series 600 --batch 4 --control
+2026-09-06 14:38:47  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --crop-mm 100 --tag m67crop100
+2026-09-06 15:57:10  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --crop-mm 80 --tag m68crop80
+2026-09-06 17:15:34  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 m67crop100 --halves
+2026-09-06 17:23:56  uv run python -u src/ensemble.py m67crop100 m68crop80 --save-preds artifacts/preds_crop.npz
+2026-09-06 17:29:18  uv run python -u src/merge_preds.py artifacts/preds_pool2.npz artifacts/preds_crop.npz -o artifacts/preds_pool3.npz
+2026-09-06 17:29:40  uv run python -u src/ensemble_search.py artifacts/preds_pool3.npz --keep m31newshards m33up336new m32blend40new m37up288 --max-members 6 --top 20
+2026-09-06 17:30:02  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 192 --upsample 224 --aug --cosine --crop-mm 100 --stream --tag m69crop100real
+2026-09-06 20:16:27  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 m69crop100real --halves
+2026-09-06 20:24:49  uv run python -u src/ensemble.py m69crop100real --save-preds artifacts/preds_m69.npz
+2026-09-06 20:30:12  uv run python -u src/merge_preds.py artifacts/preds_pool3.npz artifacts/preds_m69.npz -o artifacts/preds_pool4.npz
+2026-09-06 20:30:34  uv run python -u src/ensemble_search.py artifacts/preds_pool4.npz --keep m31newshards m33up336new m32blend40new m37up288 --max-members 6 --top 20
+2026-09-06 20:30:56  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --finding-weights weak --tag m72fw2
+2026-09-06 21:46:19  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --finding-weights 1,1,1,4,1,4,4,1,4,1,1,1 --tag m73fw4
+2026-09-06 23:01:42  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --finding-weights weak --seed 1 --tag m74fw2s1
+2026-09-07 00:19:06  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 3 --tag m75seed3
+2026-09-07 01:35:29  uv run python -u src/ensemble_search.py artifacts/preds_pool4.npz --keep m31newshards m33up336new m32blend40new m37up288 --max-members 10 --top 20
+2026-09-18 14:02:11  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --no-flip --tag m76noflip
+2026-09-18 15:17:35  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --no-flip --seed 1 --tag m77noflips1
+2026-09-18 16:32:58  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --flip-swap --tag m78flipswap
+2026-09-18 17:48:22  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --no-flip --seed 2 --tag m79noflips2
+2026-09-18 19:03:45  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --flip-swap --seed 1 --tag m80flipswaps1
+2026-09-19 01:06:14  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --cosine --tag m81noaug
+2026-09-19 02:23:38  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --cosine --seed 1 --tag m82noaugs1
+2026-09-19 03:38:01  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --cond planeflag --tag m85cond
+2026-09-19 04:53:25  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --cond planeflag --seed 1 --tag m86conds1
+2026-09-19 17:10:04  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 6 --epochs 12 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --tag m89dinofrz
+2026-09-19 17:10:59  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --cond planeflag --seed 2 --tag m87conds2
+2026-09-19 17:12:25  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 m89dinofrz --halves
+2026-09-19 17:12:51  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 6 --epochs 12 --size 256 --stream --pool 8 --upsample 224 --aug --cosine --tag m90dino224
+2026-09-19 20:46:17  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 m89dinofrz --halves
+2026-09-19 20:53:37  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 m89dinofrz m90dino224 --halves
+2026-09-20 00:38:01  uv run python -u src/ensemble.py m31newshards m33up336new m32blend40new m37up288 m38seed1 m40m33s1 m43small m89dinofrz m90dino224 --halves
+2026-09-20 00:38:03  uv run python -u src/ensemble.py m89dinofrz m90dino224 --save-preds artifacts/preds_dino.npz
+2026-09-20 00:38:44  uv run python -u src/merge_preds.py artifacts/preds_pool4.npz artifacts/preds_dino.npz -o artifacts/preds_pool5.npz
+2026-09-20 00:39:06  uv run python -u src/ensemble_search.py artifacts/preds_pool5.npz --keep m31newshards m33up336new m32blend40new m37up288 --drop m53nbr m55nbr33 m56nbr37 m54attn --max-members 8 --top 20
+2026-09-20 00:39:28  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 6 --epochs 12 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --seed 1 --tag m91dinofrzs1
+2026-09-20 00:42:49  uv run python -u src/merge_preds.py artifacts/preds_pool4.npz artifacts/preds_dino.npz -o artifacts/preds_pool5.npz
+2026-09-20 00:43:11  uv run python -u src/ensemble_search.py artifacts/preds_pool5.npz --keep m31newshards m33up336new m32blend40new m37up288 --drop m53nbr m55nbr33 m56nbr37 m54attn --max-members 8 --top 20
+2026-09-20 03:40:26  uv run python -u src/train_image.py --arch slicenet --backbone tf_efficientnetv2_s.in21k_ft_in1k --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 3 --epochs 12 --size 256 --stream --pool 8 --aug --cosine --tag m92effvfrz
+2026-09-20 06:37:53  uv run python -u src/train_image.py --arch slicenet --backbone swin_base_patch4_window7_224.ms_in22k_ft_in1k --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 2 --epochs 12 --upsample 224 --aug --cosine --tag m93swinfrz
+2026-09-20 09:25:19  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 2 --epochs 12 --upsample 224 --aug --cosine --tag m94radfrz
+2026-09-20 10:15:42  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 256 --stream --pool 8 --upsample 448 --aug --cosine --tag m95up448
+2026-09-23 13:55:31  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 128 --upsample 224 --aug --cosine --cond contrast --tag m96ctr
+2026-09-23 15:10:55  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 128 --upsample 224 --aug --cosine --cond contrast --seed 1 --tag m96ctrs1
+2026-09-23 17:53:21  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 128 --upsample 224 --aug --cosine --cond contrast --seed 2 --tag m96ctrs2
+2026-09-23 19:08:44  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --size 128 --upsample 224 --aug --cosine --cond contrast --seed 3 --tag m96ctrs3
+2026-09-27 20:37:46  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 1 --tag m97rads1
+2026-09-27 22:03:10  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 2 --tag m97rads2
+2026-09-27 23:29:35  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --cond contrast --tag m98radctr
+2026-09-28 00:55:58  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --cond contrast --seed 1 --tag m98radctrs1
+2026-09-28 02:21:23  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --cond contrast --seed 2 --tag m98radctrs2
+2026-09-28 03:47:47  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 3 --tag m97rads3
+2026-09-28 05:15:12  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --size 192 --upsample 288 --aug --cosine --tag m99radup288
+2026-09-28 08:08:37  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 4 --tag m97rads4
+2026-09-28 09:35:02  uv run python -u src/train_image.py --arch slicenet --backbone resnet50 --backbone-weights artifacts/backbones/ResNet50.pt --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --seed 5 --tag m97rads5
+2026-09-28 13:05:27  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 6 --epochs 12 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --seed 1 --tag m89dinofrzs1
+2026-09-28 16:02:55  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 6 --epochs 12 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --seed 2 --tag m89dinofrzs2
+2026-09-28 19:01:24  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 6 --epochs 12 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --seed 3 --tag m89dinofrzs3
+2026-09-28 21:59:52  uv run python -u src/train_image.py --arch slicenet --backbone vit_small_patch14_dinov2.lvd142m --batch 4 --lr 1e-3 --backbone-lr 8e-6 --unfreeze-last 6 --epochs 12 --size 256 --stream --pool 8 --upsample 336 --aug --cosine --seed 4 --tag m89dinofrzs4
+2026-09-29 13:35:26  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --aug-only zoom --tag m100zoomonly
+2026-09-29 14:50:50  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --aug-only zoom --seed 1 --tag m100zoomonlys1
+2026-09-29 16:05:15  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --aug-only int --tag m101intonly
+2026-09-29 17:20:39  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --aug-only int --seed 1 --tag m101intonlys1
+2026-09-29 18:36:04  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --zoom-min 0.70 --tag m102zoom70
+2026-09-29 19:51:28  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --zoom-min 0.70 --seed 1 --tag m102zoom70s1
+2026-09-29 21:06:53  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --rot 10 --tag m103rot10
+2026-09-29 22:16:49  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --rot 10 --seed 1 --tag m103rot10s1
+2026-09-29 23:33:13  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --gamma 0.3 --tag m104gamma
+2026-09-30 00:48:37  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --gamma 0.3 --seed 1 --tag m104gammas1
+2026-09-30 02:04:02  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --depth-aug --tag m105depth
+2026-09-30 03:19:26  uv run python -u src/train_image.py --arch slicenet --backbone convnext_tiny.in12k_ft_in1k --batch 4 --lr 3e-4 --epochs 12 --upsample 224 --aug --cosine --depth-aug --seed 1 --tag m105depths1

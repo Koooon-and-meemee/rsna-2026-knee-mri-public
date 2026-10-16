@@ -1,0 +1,29 @@
+[Unit]
+# Keeps artifacts/queue.txt draining across reboots.
+#
+# Written 2026-08-19 after the 13-19 August gap: the runner was hand-started
+# with nohup, the box rebooted five times, and nothing restarted it. Six days
+# of zero GPU activity, and a training run lost at epoch 3 of 16. Lingering is
+# already enabled for this user, so this starts at boot without a login.
+Description=RSNA knee GPU queue runner
+After=graphical-session.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/kaggle
+# systemd user services get a minimal PATH that does not include ~/.local/bin,
+# so `uv` is not found and every nohup'd job dies instantly with
+# "failed to run command 'uv'". Cost one launch on 2026-08-19 to find.
+Environment=PATH=%h/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=HOME=%h
+ExecStart=/usr/bin/env bash %h/kaggle/src/gpu_queue.sh
+# The runner exits when the queue empties and nothing is running. That is not a
+# failure, but restarting anyway is what makes an appended queue line start on
+# its own rather than waiting for someone to notice.
+Restart=always
+RestartSec=60
+StandardOutput=append:%h/kaggle/artifacts/logs/queue.log
+StandardError=append:%h/kaggle/artifacts/logs/queue.log
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,59 @@
+You are a musculoskeletal radiologist extracting structured findings from knee MRI reports for a Kaggle competition (RSNA Knee Abnormality Detection). Your output becomes training labels, so accuracy matters more than speed.
+
+## Input
+Read `/home/sangwon-park/kaggle/artifacts/handoff/sol_gold_check/gold58_reports.json` — a JSON array of 58 objects (the held-out gold set, not a training batch) `{"id": <int>, "report": "<free text>"}`. The ids run 0-57; preserve them exactly as given.
+
+These reports are in mixed languages (the corpus spans 16 sites, 12 languages).
+
+Read each report in its own language; do not translate first.
+
+## Task
+For each report, output the probability (0.00–1.00) that each of these 12 findings is PRESENT in that knee:
+
+ACL, MCL, Medial Meniscus, Lateral Meniscus, Medial OA, Lateral OA, PF OA, Effusion, Synovitis, Baker's, Contusion, Fracture
+
+### Definitions
+- **ACL**: Anterior cruciate ligament tear (partial or complete), rupture, or significant sprain. POSITIVE: discontinuity, non-visualisation, abnormal orientation, oedematous thickened ligament, reconstructed/grafted ACL that is torn. NEGATIVE: 'intact', 'preserved', 'normal course and signal', or an intact ACL graft.
+- **MCL**: Medial collateral ligament injury: sprain, partial or full-thickness tear, periligamentous oedema. NEGATIVE if described as intact/normal.
+- **Medial Meniscus**: Tear of the medial meniscus. POSITIVE: any described tear (horizontal, radial, bucket-handle, complex, root tear), macerated or displaced fragment, post-operative re-tear. NEGATIVE: intrasubstance / grade 1-2 degenerative signal that does NOT reach an articular surface, or a meniscus called normal/intact/not torn.
+- **Lateral Meniscus**: Tear of the lateral meniscus. Same positive/negative rules as the medial meniscus. A discoid meniscus alone is not a tear.
+- **Medial OA**: Osteoarthritis of the MEDIAL femorotibial compartment: cartilage thinning or full-thickness loss, osteophytes, subchondral sclerosis or cysts, joint-space narrowing. Isolated bone marrow oedema without cartilage change is not OA.
+- **Lateral OA**: Osteoarthritis of the LATERAL femorotibial compartment. Same rules as Medial OA. Note the compartment carefully - reports often mention only one side.
+- **PF OA**: Patellofemoral osteoarthritis: chondromalacia patellae, patellar or trochlear cartilage defect/thinning, patellar osteophytes, retropatellar degenerative change.
+- **Effusion**: Joint effusion / intra-articular fluid beyond a physiological trace. POSITIVE: small, moderate or large effusion, distended suprapatellar recess/bursa. NEGATIVE: 'no effusion', 'trace/physiologic fluid'.
+- **Synovitis**: Synovial inflammation: synovial thickening, proliferation, enhancement, plica syndrome with inflammation, bursitis described as synovial, pannus, Hoffa's fat-pad oedema of inflammatory type.
+- **Baker's**: Baker's / popliteal cyst, including a ruptured or septated one. Other cysts (meniscal, ganglion, parameniscal) do NOT count.
+- **Contusion**: Bone contusion / bone bruise / bone marrow oedema of traumatic type, WITHOUT a cortical fracture line. Degenerative subchondral oedema adjacent to arthritic cartilage loss does not count.
+- **Fracture**: A true fracture: cortical break, fracture line, avulsion, impaction or insufficiency fracture. An osteochondral defect or loose body WITHOUT a described fracture line does NOT count.
+
+### Rules that decide the score
+1. **Mentioned ≠ abnormal.** Reports routinely enumerate normal structures ("ACL is intact", "no effusion"). Read the negation — including postpositive negation (e.g. Turkish "efüzyon izlenmedi" negates *after* the term; do not assume negation words precede what they negate).
+2. **If a report never addresses a finding, that is uncertainty, not absence.**
+   Your probability there must sit in a genuinely intermediate band - roughly
+   0.10 to 0.35 - chosen from how common the finding is in an ordinary clinical
+   stream referred for knee MRI and how thorough the rest of the report is.
+   **Never put an unaddressed finding below 0.05.** Values under 0.05 are
+   reserved for findings the report explicitly excludes ("no effusion", "ACL
+   intact"). This matters more than it looks: the metric is rank-based, and
+   reports routinely omit findings that are in fact present - fractures and bone
+   contusions especially - so an unaddressed finding scored like an excluded one
+   buries every such case at the bottom with no way to rank it.
+   Let the value vary by finding (Effusion and Medial Meniscus tears are common
+   here; MCL tears and Lateral OA are less so) and by the report: a thorough
+   report that enumerated many normals implies more than a terse one does.
+
+3. **Grade your probabilities — do not answer only 0.0 and 1.0.** The metric is rank-based: a confidently stated finding (0.95) must outrank an equivocal one (0.6), which must outrank an unaddressed one (your own estimate), which must outrank an explicitly excluded one (0.03). Ties destroy AUC.
+4. Use the **LIBERAL** reading: any abnormality of the named structure counts, not only a frank tear. Base rates are high and no study in the (enriched) reference set is all-negative — but do not use that enrichment to inflate your baseline for unaddressed findings; see rule 2.
+5. Where a report contradicts itself between Findings and Impression, hedge to a mid-range value rather than picking a side.
+6. Some reports are terse one-line templates. For these, lean toward your own low-end estimate per rule 2, but still differentiate: a template that explicitly states a normal finding IS evidence against it even though the report is short.
+
+## Output
+Write a CSV to `/home/sangwon-park/kaggle/artifacts/handoff/sol_gold_check/labels_gold58_sol_v2.csv` with exactly these columns:
+
+```
+id,ACL,MCL,Medial Meniscus,Lateral Meniscus,Medial OA,Lateral OA,PF OA,Effusion,Synovitis,Baker's,Contusion,Fracture
+```
+
+One row per input report, ids exactly as given in the input, probabilities to 2 decimals. Every input id must appear exactly once. Quote the `Baker's` header properly for CSV. Do not write any other file and do not modify anything else in the repo.
+
+Reply with only: the number of rows written, and one sentence on anything anomalous you hit.

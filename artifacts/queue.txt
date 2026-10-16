@@ -1,0 +1,1051 @@
+# Rewritten 2026-08-20 01:56. All three items from the 19 Aug queue finished:
+# m33up336new (LB 0.943), m32blend40new (16 epochs, pv-hold 0.8808 - the label
+# blend does not clear the bar), and the three-member ensemble measurement
+# (prob mean +0.0052, rank mean +0.0019). One command per line, top line runs
+# next, re-read every poll.
+#
+# gpu_queue.sh's running() was widened to match any src/*.py the queue
+# launches, and the unit restarted at 01:56 with the card idle - so these three
+# no longer collide with each other the way ensemble.py would have.
+
+# Which members does the ensemble actually need? The three-member prob mean
+# gained +0.0052 on pseudo-val, but m32 and m33 share an input representation
+# (up336/256) and differ only in their targets, so m32 may be adding nothing
+# the other two do not already carry. Each of these streams all 36 shards and
+# takes ~5 minutes. If m31+m33 matches the three-member number, the submission
+# kernel carries two checkpoints instead of three.
+
+# 4. Added 20 Aug 02:35, after the pair measurements showed where ensemble gain
+# comes from: pairs containing m31 (up224/128) reach pv-hold 0.8860, the pair of
+# same-representation members (m33+m32, both up336/256) only 0.8841. Diversity
+# of input representation pays; diversity of targets does not. Every member we
+# own is convnext_tiny, so the next uncorrelated member has to come from a
+# different family. m28dino336 scored 0.850 alone on the OLD shards, which is
+# both a weak number and an untrustworthy one - it never saw the crop and
+# laterality fix. Its value as a member is a separate question from its solo
+# score, and neither can be answered from the old-shard run.
+
+# 5. Added 21 Aug 10:35, with the board at 3/2075 and the card idle since
+# 10:27. m34dinonew finished 16 epochs on the corrected shards: pv-hold 0.856,
+# gold 0.890 - clearly below m31/m33 (pv-hold 0.883) on its own. That is the
+# expected shape, not a reason to drop it: the reason to train it was item 4's
+# conclusion that every member we own is convnext_tiny, and a member's value in
+# an ensemble is a separate question from its solo score. It also answers the
+# m28dino336 question honestly for the first time, since this DINOv2 run did
+# see the crop and laterality fix.
+#
+# The submitted incumbent is m31+m33+m32 (prob mean, pv 0.8977 / pv-hold
+# 0.8872, LB 0.946). First line swaps m32 for m34 - same member count, one
+# convnext_tiny traded for a different backbone family. Second line keeps all
+# four. Both stream 36 shards, ~5 min each.
+
+# 6. Added 21 Aug 10:50. m34dinonew is OUT as a member, measured twice: swapping
+# it for m32 cost -0.0027 pv / -0.0018 pv-hold / -0.0035 gold, and adding it as a
+# fourth cost -0.0012 / -0.0008 / -0.0022. Six numbers, one direction. Its solo
+# 0.8628 is 0.029 below the tiny members and it cannot carry an equal vote; rank
+# mean went NEGATIVE in both (-0.0018, -0.0007), so rank averaging punishes a weak
+# member harder than prob averaging does. Not retrained longer: ep14/15/16 were
+# 0.870/0.871/0.870 while loss kept falling 0.4816->0.4777->0.4756 - fitting the
+# targets without improving the ranking, which is the overfit signature, and no
+# number of epochs closes 0.029 at +0.001 per three.
+#
+# The family-diversity hypothesis is NOT refuted - it was confounded (flat lr 3e-4
+# on a DINOv2 ViT, and equal weighting). It is shelved because rescuing a ~+0.002
+# member is not worth 5 GPU hours while an untouched axis exists.
+#
+# Every one of the 25 runs to date is depth 32 / width 24. Not once varied. Slice
+# count is a through-plane representation change, orthogonal to in-plane
+# resolution, and representation diversity is the only ensemble axis with a
+# measured precedent (m31-containing pairs 0.8860 vs same-representation 0.8841).
+# This is m31's recipe with depth alone changed: known backbone, one variable,
+# 128px so ~2.5h. Builds a new vols_48x128 cache (~19GB; 66GB free).
+
+# 7. Added 21 Aug 10:55. m35depth48 died in 60s: --depth is NOT a training knob.
+# Depth resampling happens at DICOM decode time (kernels/volume.py:225) and the
+# shards on disk hold 32 slices; load_shard only resizes in-plane and preserves
+# vols.shape[1], so build_cache allocated (n,48,128,128) and got (700,32,128,128).
+# The flag exists in argparse and silently disagrees with the data. That is why
+# no run ever varied depth - not an untried idea, an unavailable one. Varying it
+# means re-running push_preprocess.py over the whole competition set on Kaggle
+# (36GB of shards -> ~54GB, plus the re-download), which is a day, not 2.5 hours.
+# Axis shelved on cost, not on merit.
+#
+# Instead: the confound m34 was never given a chance to shed. Every public
+# ensemble at the top of this board is DINOv2/DINOv3 (see experiments.md, the
+# 35-member rank ensemble), so DINOv2-small demonstrably reaches competitive
+# solo scores in other hands while ours posted 0.8708 - which points at the flat
+# 3e-4 we fed a pretrained ViT backbone, not at the family. --backbone-lr has
+# existed since m25blr and m34 did not use it. One variable off m34: backbone at
+# 3e-5, head stays 3e-4, same representation, same 16 epochs, ~5h.
+#
+# Read it as a recipe change, so pv-hold judges it: if this does not clear ~0.89
+# solo it is not an lr problem and the family is genuinely done here.
+
+# 8. Re-queued 21 Aug 21:35. m36dinolr was stopped by hand at 13:25, after ep8
+# of 16 (pv-sel 0.851 / pv-hold 0.831 / gold 0.856, still climbing every epoch
+# and still marked <- best at 8/8). The machine then rebooted at 17:51, which
+# brought the runner back up against an already-empty queue.txt - the line had
+# been popped at launch - so the card has been idle since 13:25.
+#
+# The identical command resumes: last.pt holds epoch 8 with opt+scaler state
+# and cfg_key ('slicenet', dinov2, 256, 336, 16), which matches this line, so
+# train_image.py restores it and starts at epoch 9. 8 epochs left at ~19.3
+# min/epoch = ~2.6h, not the 5h of a cold start. ep1-8 log preserved as
+# train_m36dinolr.ep1-8.log, since the relaunch truncates train_m36dinolr.log.
+
+# 9. Added 21 Aug 22:50, to run the moment m36dinolr's 16 epochs finish. The
+# same two measurements m34 got, so the numbers are directly comparable:
+# swap m36 in for m32, then add it as a fourth. ensemble.py loads
+# image_model.pt (the pv-sel-best epoch) and reads the backbone from
+# image_model.json, so a DINOv2 member mixes with three convnext_tiny without
+# a flag. ~5 min each, both stream all 36 shards.
+#
+# What the answer has to clear: the incumbent m31+m33+m32 is pv 0.8977 /
+# pv-hold 0.8872 / gold 0.9206. m34 was rejected on six numbers falling one way
+# (-0.0027/-0.0018/-0.0035 swapped, -0.0012/-0.0008/-0.0022 added). If m36 lands
+# positive, or inside noise in the other direction, that is the disagreement the
+# 21 Aug LB policy says to settle with a submission slot rather than an argument.
+#
+# These sit behind the running training job: MAX_JOBS=1 and running() matches
+# any .venv python under src/, so the runner holds them until the GPU frees.
+
+# 10. Added 23 Aug 15:10, with the card idle 39h and the cushion eroding: our
+# 0.946 has not moved since 20 Aug while the 10th-place line went 0.941 -> 0.944.
+# Rank 3 -> 4. Standing still is now the losing move, not the safe one.
+#
+# Why this and not another backbone: every model on the corrected shards is one
+# of exactly TWO input representations - m31 (source 128 -> 224) and m33/m32/m34/
+# m36 (source 256 -> 336). Representation diversity is the only ensemble axis
+# with a measured precedent (m31-containing pairs pv-hold 0.8860 vs the
+# same-representation pair 0.8841), and we have built two points on it in 25
+# runs. Backbone family is closed (m34, m36), targets are closed (m32), depth is
+# blocked behind a Kaggle re-preprocess. A third representation is the only
+# untried thing that is both cheap and supported by evidence.
+#
+# Shards are natively (32, 256, 256) uint8, so 256 is the information ceiling
+# and source resolution is the real knob: 192 is a genuine third point, not an
+# interpolation of the other two. Upsample 288 keeps the same ~1.5x ratio the
+# other members use. Backbone/aug/cosine/epochs identical to m33 so the
+# representation is the only variable. ~14 min/epoch, so ~3.8h.
+#
+# Read it as a REPRESENTATION change: per the standing rule pv-hold cannot judge
+# these, so a shrug on the solo number is not a verdict. The question this run
+# exists to answer is the member question, which the two lines after it measure.
+
+# 11. Added 23 Aug 15:30. The replicate-spread finding hands us a free
+# measurement nobody could have asked for before today: m34 and m36 are the
+# SAME recipe trained twice, and they scored 0.8559 and 0.8634 on pv-hold. Two
+# runs that differ by 0.0075 are two models that FAIL DIFFERENTLY - which is the
+# one precondition under which averaging pays. Seed diversity has never been
+# tried in 25 runs because nobody knew runs differed at all.
+#
+# This costs zero training: both checkpoints already exist. If m34+m36 beats
+# max(m34, m36) by more than the members' own spread, seed diversity is a real
+# ensemble axis and it is the cheapest one available - no new representation,
+# no new backbone, just the same recipe again with --seed 1.
+
+# 12. Added 23 Aug 15:50. A replicate of m31 with --seed 1: the same command
+# that produced the strongest member we own, run again with one number changed.
+# Queued now because it is the rare experiment that pays under BOTH outcomes of
+# the m34+m36 seed test ahead of it:
+#
+#   if same-recipe averaging wins  -> this IS the next member, and the cheapest
+#                                     one available (no new representation, no
+#                                     new backbone, a known-good recipe)
+#   if it does not                 -> it is still the first replicate of a
+#                                     STRONG recipe. The 0.0075 spread was
+#                                     measured on DINOv2 at 0.856, and there is
+#                                     no reason to assume a recipe at 0.883
+#                                     wobbles by the same amount. Every decision
+#                                     in this project now leans on that number.
+#
+# It also puts a floor under the m31-vs-m33 comparison (0.8832 vs 0.8799, a
+# 0.0033 gap that the audit just moved to "unproven"), because a second m31
+# bounds how much of it was ever real.
+#
+# m31's exact recipe from its image_model.json: 12 epochs, size 128, upsample
+# 224, no --stream. ~2.5h at 128px.
+
+# 13. Added 24 Aug 00:05. m38seed1 (m31's recipe, --seed 1) beats the incumbent
+# on ALL THREE instruments as a fourth member: pv +0.0013, pv-hold +0.0016,
+# gold +0.0016. That is the best local configuration ever measured here, and it
+# beats the m37 four-member that just scored LB 0.947.
+#
+# Both m37 and m38 add value individually, so the five-member is the obvious
+# question and it has never been measured. Also worth asking whether m32 - the
+# member that shares m33's representation and has never justified its seat -
+# should give way rather than be added to. Two measurements, ~6 min each,
+# before spending another slot on a configuration nobody has looked at.
+
+# 14. Added 24 Aug 00:20. The day's evidence converges on one direction, so the
+# overnight queue is member SUPPLY rather than another axis hunt.
+#
+# What was established today: member count raises pv-hold monotonically
+# (0.8872 -> 0.8880 -> 0.8888 -> 0.8892 -> 0.8898) and the LB confirmed the
+# fourth member at +0.001; representation diversity has never been shown to pay
+# (m37, built for it, contributes exactly what m32 contributes without it); seed
+# replication DOES pay when members are close in quality (+0.0026 on the strong
+# pair, -0.0010 on the weak one); and m38 - a pure seed replicate - came out
+# STRONGER than the run it replicated (pv-sel 0.9034 vs 0.8997, gold 0.9205 vs
+# 0.9148) and lifted all three instruments as a member.
+#
+# So the cheapest source of members is seed replication of recipes we already
+# know are strong. The top of this board is a 35-member ensemble; we have four.
+#
+# Two seeds on two different recipes rather than two on one, because the members
+# should stay close in quality but there is no reason to make them identical -
+# and if the m31 recipe (128px, 12 epochs, 2.5h) keeps producing 0.903-class
+# models it is by far the cheapest member factory we have.
+
+# 15. WITHDRAWN before starting. The bet was two more seeds of m31's recipe on
+# the premise that member count is the lever. The five-member measurement came
+# back first and refutes it: adding m39 to m31+m33+m37+m38 moved pv-hold from
+# 0.8898 to 0.8897, which at sd 0.0003 is a confident nothing. m39 is the third
+# seed of m31's recipe, so a fourth and fifth cannot do what the third did not.
+#
+# 16. Added 24 Aug 07:05, replacing it. The audit on 23 August retired "capacity
+# topped out" as never actually measured: small 0.872 vs tiny 0.874 was a 0.002
+# gap on pseudo-val, whose replicate sd is 0.0044. It was not a null result, it
+# was an unreadable one.
+#
+# We can read it now. pv-hold replicates to 0.0003-0.0006 across two independent
+# recipes, so a 0.002 capacity difference is five to seven sd. One run settles a
+# question that has been sitting closed - and wrongly closed - since 9 August.
+#
+# This matters more than another member. Single-model pv-hold has not left
+# 0.880-0.884 since 13 August across four recipes, and every leaderboard point
+# since 0.942 came from ensembling, which has now flattened too. If capacity was
+# retired on a misreading, it is the largest untried lever left.
+#
+# m31's recipe exactly, backbone swapped: 128px source, up224, 12 epochs. Judge
+# on pv-hold against the m31-recipe mean of 0.8833 (n=3).
+
+# 17. WITHDRAWN 24 Aug 10:20 before starting. m45m37s1 would confirm the
+# two-members-per-recipe rule by adding a predicted +0.0009 to pv-hold. The rule
+# is worth having, but the five-member LB came back 0.947 - the same as three
+# different four-member sets - so a confirmed +0.0009 on pv-hold buys a number
+# and no board point. 4.7 GPU hours is too much for that while the label axis
+# is untouched.
+#
+# 18. Added 24 Aug 10:20. The label axis, which is the only untouched one and
+# the only one with a mechanism for the plateau.
+#
+# The plateau explained: the teacher agrees with the 58 real gold labels at
+# 0.900. pseudo-val measures agreement with the teacher, so where the teacher is
+# wrong and the model is right, pseudo-val scores it as an error - a PERFECT
+# model cannot score far above 0.90 there. Current pv-sel runs 0.8947-0.9034.
+# The 0.880-0.884 pv-hold plateau since 13 August is the ruler ending, not the
+# model. This was written down on 9 August (experiments.md, "Which breaks the
+# instrument") and never acted on.
+#
+# The fix that exists: blend teacher labels with out-of-fold model predictions.
+# Measured on gold - teacher 0.8997, model 0.9094, blend 0.9271. It was tried
+# once (m32blend40new) with OOF from 6-epoch fold models and rejected on pv-hold,
+# which is scored against the UNBLENDED teacher labels and therefore cannot
+# reward this change by construction. Its only unbiased evidence was gold 0.9147
+# vs m31's 0.9148 - and gold's replicate sd is 0.0037, so it could not have read
+# a real improvement of this size either. The verdict was never actually made.
+#
+# This run redoes the OOF at 12 epochs instead of 6, so the fold models land near
+# m31's quality (gold ~0.915) rather than the ~0.909 that produced the last
+# blend. ~4.7h for the folds, then the blend is seconds.
+#
+# JUDGE THIS ON GOLD AND THE LEADERBOARD, NOT pv-hold. pv-hold is defined against
+# the labels this run is trying to improve. Stating it here because the last
+# attempt died on exactly that mistake.
+
+# 19. Added 24 Aug 12:30, sized for a two-day unattended stretch. The queue
+# runner is a systemd user unit with lingering, so it survives both a closed
+# session and a reboot; the agent watching it does not. Everything below is
+# chosen to be worth running WITHOUT anyone judging in between.
+#
+# THE QUESTION ALL OF THIS SERVES. Single-model pv-hold has not left 0.880-0.884
+# since 13 August, and the reason is probably that pseudo-val measures agreement
+# with a teacher that is only 0.900 accurate against the 58 real labels. If so,
+# no image-side change can show up locally, and refining the labels is the only
+# move. m46blend12 is the first proper test.
+#
+# HOW TO JUDGE ANY OF IT: gold, not pv-hold. pv-hold is scored against the
+# unblended teacher labels these runs are trying to improve, so it punishes
+# success. gold is 58 studies with real radiologist labels and a replicate sd of
+# 0.0037, so a single run needs about +0.011 to be readable - which is why the
+# sweep and the replicate below exist rather than one run and a guess.
+#
+#   baseline   m31 recipe (n=3)        gold 0.9163   hold 0.8833
+#   old try    m32blend40 (OOF-6)      gold 0.9147   hold 0.8808
+#
+# 19a. Teacher-weight sweep. 0.4 is running as m46blend12; 0.25 was the value
+# fitted on the 58 gold studies (0.9271 there) and 0.6 brackets it from the other
+# side. The blends themselves are seconds - the cost is one retrain each. If gold
+# rises monotonically toward lower teacher weight, the model's predictions are
+# the better source and that is a finding in itself.
+#
+# 19b. A replicate of the 0.4 blend. Without it there is no way to tell a real
+# gold movement from gold's own 0.0037 wobble, and every previous label verdict
+# here died on exactly that.
+#
+# 19c. Ensembles of the blend-trained models against the current incumbent. If
+# label refinement works at all, an ensemble of models trained on better labels
+# is the submission candidate, and these are five minutes each.
+#
+# 19d. Filler with real value, last because it is the least informative: the
+# recipe-C replicate withdrawn this morning. It confirms the two-members-per-
+# recipe rule with a predicted +0.0009 on pv-hold. Worth running only when the
+# alternative is an idle card, which after 19a-c it will be.
+
+# 20. Added 24 Aug 21:35. The first measurement of through-plane resolution this
+# project has ever made. m31's recipe exactly - 128px source, up224, 12 epochs,
+# convnext_tiny - with depth as the only variable, reading from the depth-48
+# shards downloading into artifacts/volumes48/.
+#
+# Why it took until now: m35depth48 died in 60 seconds on 21 Aug because
+# --depth is a training flag over shards that hold 32 slices, and the axis was
+# then shelved as costing "a day". That figure was never derived. Measured today:
+# Kaggle kernel ~1h across 4 concurrent parts, download 9-11 MB/s for 54GB, so
+# ~2.5-3h total. The axis was affordable the whole time.
+#
+# Verified before spending it, because m35's failure was exactly an unverified
+# flag: a --limit 40 smoke kernel returned (40, 48, 256, 256). depth 48 reaches
+# the kernel body. --volumes was added to train_image.py today so the 48-slice
+# shards sit beside the 32-slice ones rather than replacing them - every current
+# ensemble member was trained on 32 and has to stay reproducible.
+#
+# The comparison is against the m31 recipe's three-seed baseline, pv-hold 0.8833
+# (0.8831/0.8832/0.8836). Between-run spread is 0.0005, so anything past about
+# 0.002 is real - but compare LATE-EPOCH PLATEAUS, not the delivered checkpoint,
+# because pv-sel occasionally lands on a curve spike and m48blend60 looked like a
+# breakthrough for an hour that way.
+#
+# Cache is ~19GB at depth 48 / 128px, which the disk has room for.
+
+# 21. Added 25 Aug 04:00. RadImageNet ResNet-50 — a medically pretrained backbone,
+# which is NOT the closed backbone-family axis. That was DINOv2 twice, pretrained
+# on natural images. RadImageNet is pretrained on 1.35M medical images and is what
+# the top public ensembles actually lean on.
+#
+# Verified end to end before queueing, per the m35 rule: the checkpoint is a
+# torchvision ResNet-50 inside an nn.Sequential, so its keys remap to timm's
+# names mechanically (backbone.0 -> conv1, backbone.4 -> layer1, ...). 318 tensors,
+# zero missing, zero unexpected, SliceNet forward returns (1, 12). The loader
+# raises rather than partially loading, because a silently random backbone
+# training for two hours is exactly the failure this project keeps having.
+#
+# m31's recipe otherwise, and 12 epochs not 16 - the selection loss measured last
+# night is 0.0047 for 16-epoch runs against 0.0010 for 12.
+#
+# Judge on PEAK pv-hold against the band every other model sits in, 0.882-0.887.
+# Twelve models across six recipes have failed to leave it; if a medically
+# pretrained backbone does not either, the ceiling is the labels and not the
+# vision, and that is the finding.
+
+# 22. Added 25 Aug 06:55. Efficiency-track accuracy/cost curve. No training —
+# these read checkpoints already on disk and only vary what is fed to them.
+#
+# Why: the efficiency leaderboard has us 158th of 2175 while ranks 2-10 all score
+# BELOW us (0.925-0.942 against our 0.947). Inside a score band the ordering is
+# runtime, and ours goes on slices: five series x three planes x thirty-two
+# slices per study, ~4.7 s/study for ONE model, and the submitted incumbent is a
+# four-member ensemble. Three prizes at 7000/6000/5000 and nobody here has spent
+# an hour on it.
+#
+# The member lever is already measured: one model is pv-hold 0.8832 against the
+# four-member 0.8898, so 4x the speed for -0.0066. These four runs add the slice
+# lever on top, which is linear in cost and structurally free - SliceNet pools
+# over however many slices arrive.
+#
+# Read the curve, not the individual numbers: the question is which point on
+# accuracy-versus-seconds to submit, and that needs the shape.
+
+# 23. Added 25 Aug 13:40. Efficiency-motivated, and not a re-run of the closed
+# capacity axis. That axis was closed for ACCURACY: convnext_small buys +0.0008
+# over tiny, so bigger is not worth it. The efficiency question is the opposite
+# direction and has never been asked on the corrected shards - how much accuracy
+# does a SMALLER backbone cost, and is it worth the speed?
+#
+# convnext_nano is ~15M parameters against tiny's 28M. The only nano number in
+# this project is 0.868 on pseudo-val from 9 August, measured on the instrument
+# whose replicate sd is 0.0044 and on the old pre-crop shards - so it says
+# nothing usable.
+#
+# Why it matters now: every speed lever so far has been inference-side
+# subsampling of a model trained at full cost. A cheaper model is a different
+# lever and it stacks with the others. At the efficiency metric's 0.04-0.05 AUC
+# per hour, nano landing within 0.002 of tiny would be a clear win.
+#
+# m31's recipe exactly, 12 epochs, judged on peak pv-hold against tiny's 0.8835.
+
+# 24. Added 25 Aug 13:45. The architecture question, and it turned out to be one
+# line rather than a new model.
+#
+# SliceNet feeds every slice into the backbone as `s.expand(-1, 3, -1, -1)` -
+# the same grayscale image replicated across all three input channels. Two of
+# the three carry no information, and they have carried none since the first run
+# in this project.
+#
+# 2.5D fills them with (i-1, i, i+1). Identical tensor shape, identical FLOPs,
+# identical pretrained stem - and the ImageNet stem is built for correlated
+# channels, which adjacent MRI slices are. Free at training and at inference,
+# which also means it does not cost anything on the efficiency track.
+#
+# It predicts its own reason for existing: depth 48 bought nothing because more
+# slices cannot help a model that processes each slice alone. This is the first
+# path to through-plane information the architecture has ever had.
+#
+# m31's recipe exactly, one flag changed, 12 epochs. Judged on peak pv-hold
+# against tiny's 0.8835 - and against the 0.882-0.887 band that thirteen models
+# across seven recipes have failed to leave.
+
+# 25. Added 25 Aug 13:50, from the operator's observation: the current structure
+# is attention POOLING, not self-attention.
+#
+# AttentionPool scores each slice and takes a weighted sum. The slices never see
+# each other. It can answer "how much does this slice matter" and cannot answer
+# "does this slice matter GIVEN what the next one shows" - which is how a stack
+# is actually read, a signal confirmed by its neighbours or dismissed as an
+# artefact.
+#
+# A transformer encoder over the D=32 slice features fixes that. ~9.5M
+# parameters against a backbone that runs 32 times per series over 224x224
+# images, so the compute is negligible and the efficiency track is unaffected.
+#
+# Deliberately run SEPARATELY from m53nbr rather than together. They attack the
+# same gap from different ends - 2.5D gives local through-plane context inside
+# the backbone, this gives global slice interaction after it - and if the pair
+# were run as one config a gain could not be attributed. Combine only if one of
+# them works.
+
+# 26. Added 25 Aug 19:40. Re-measure the two architecture runs as members, now
+# that ensemble.py rebuilds them correctly. The first attempt was invalid:
+# image_model.json did not record neighbour_channels or slice_attn, so
+# ensemble.py rebuilt m53nbr WITHOUT 2.5D - weights load cleanly because it adds
+# no parameters - and scored it 0.8709 against its true 0.8896. m54attn failed
+# outright with unexpected state_dict keys, which is the same bug being loud
+# instead of quiet.
+#
+# The 0.8908 five-member number from that run therefore understates the real
+# one: it was measured with a member crippled by 0.019.
+
+# 27. Added 25 Aug 19:40. Rebuild the ensemble with 2.5D. Not waiting on the
+# member measurement queued above, because that decides nothing: 2.5D is +0.006
+# solo at eleven sigma and costs zero FLOPs, so every member is worth rebuilding
+# whatever the fifth-member number says.
+#
+# Every current member - m31, m33, m37, m38 - was trained with two of the
+# backbone's three input channels carrying a duplicate. These are the same four
+# recipes with that fixed and nothing else changed, 12 epochs each (the selection
+# loss measured on 24 Aug is 0.0047 for 16-epoch runs against 0.0010 for 12).
+#
+# m53nbr already IS m31's recipe with 2.5D, so it stands in for that member and
+# is not repeated here. Three runs, ~11h.
+#
+# What this tests beyond the individual gains: whether 2.5D members still fail
+# differently from each other. If the gain is a shared systematic correction,
+# the ensemble may gain less than the sum - the two-members-per-recipe rule says
+# correlated members do not stack.
+# WITHDRAWN 26 Aug 03:30 — a fourth 2.5D recipe, cancelled before starting.
+# 2.5D has now been submitted at two resolutions and lost on the board at both:
+#   128/up224  m53nbr    LB 0.938 against m31's 0.942
+#   256/up336  m55nbr33  LB 0.942 against m33's 0.943
+# The second one had BOTH pv-hold (+0.0053) and gold (+0.0054) up, which was
+# supposed to be the safeguard. gold's sd is 0.0037, so +0.0054 is 1.5 sd -
+# a direction, not a signal. The rule asked for agreement and should have
+# asked for magnitude. Two and a half GPU hours on a third confirmation is
+# not worth it; the two ensemble measurements below are five minutes each
+# and ask a different question - whether 2.5D models fail DIFFERENTLY, which
+# individually-worse members can still do.
+
+# 26. Added 26 Aug 04:35, replacing two runs I broke. Pulling the m57nbr38
+# training left the two ensembles that referenced it in the queue, and both died
+# on FileNotFoundError. Withdrawing a job means withdrawing what depends on it -
+# the queue has no dependency tracking and will happily run a measurement whose
+# input was never produced.
+#
+# The question is unchanged and does not need the fourth model: 2.5D models lose
+# individually on the board, but a member that is worse can still be worth having
+# if it is worse in a DIFFERENT way. Three of them exist across three recipes.
+
+# 27. Added 26 Aug 05:25. The efficiency lever nobody has measured, and the
+# largest one available.
+#
+# Scoring cost is 53 minutes of fixed DICOM decode plus 31 per ensemble member.
+# The fixed part decodes every series of every study - 5.6 on average, up to 13.
+# Reading two instead of all would cut roughly 34 minutes, worth 0.023 AUC at
+# the prize's 0.04-0.05 per hour. Halving slices, by comparison, buys about 15
+# minutes for 0.0016. This is the bigger term by far and its accuracy cost has
+# never been measured.
+#
+# Deterministic first-N-encountered, which is shard order and not necessarily
+# the best N - the plane probe established that series are not interchangeable -
+# so whatever this costs is an upper bound on a smarter selection.
+#
+# Four points on the incumbent four-member ensemble. No training, no GPU beyond
+# inference, and no submission slot needed to read the curve.
+
+# 28. Added 26 Aug 08:00. Which N series, not how many.
+#
+# The series curve measured first-N-encountered and called it an upper bound,
+# because the plane probe established the three planes are not interchangeable.
+# An arbitrary first-3 can take three sagittals and never see a coronal. Every
+# val and gold study carries all three planes (580/580 checked), so covering
+# them is always possible at N=3.
+#
+# If plane-balanced 3 reaches the full-series gold of 0.9203, that is 24.6
+# minutes saved at no cost - against the 15 minutes that arbitrary-4 buys. The
+# comparison points already measured are arbitrary 3 at gold 0.9173 and
+# arbitrary 4 at 0.9212.
+# 26 Aug 09:40 - member count at the efficiency operating point. Decode is 28.4
+# min at 3 balanced series and each member adds ~8.3 min there (31 min scaled by
+# 3/5.6 series and half slices), so 4 -> 2 members buys ~16 min = 0.012 AUC at
+# the metric's exchange rate. The record says members are worth about +0.001
+# each and a recipe is worth about two, so the trade should favour fewer. These
+# are inference only - no training, minutes each.
+# The four-member point at the IDENTICAL setting. Without it the member axis is
+# unreadable: the series curve was measured at full slices and these member runs
+# add --slice-stride 2, so 2-member 0.9117 against 4-member 0.9200 is a
+# difference in two variables, not one.
+# 26 Aug 10:12 - re-cut the series curve at the configuration actually chosen.
+# The original curve was four members at full slices; the operating point is now
+# two members at half slices, and nothing establishes the levers are additive.
+# If they interact, the optimum series count moves. Inference only.
+# The last unpriced lever: a quarter of the slices. 8 of 32 may be too few, but
+# it is the only remaining knob and it costs four minutes to find out.
+# 26 Aug 11:15 - members are not interchangeable in COST. m33 runs at 336 and
+# costs 2.25x what m31 and m38 cost at 224; m37 is 1.65x. The "31 min per
+# member" figure was an average over that spread, and the pair chosen for the
+# efficiency entry happens to contain the single most expensive member. A cheap
+# pair buys either a shorter run or another series for the same money.
+# 26 Aug 12:00 - the cost model missed the backbone. It scaled only with
+# upsample squared, so convnext_nano and convnext_tiny counted the same. nano is
+# roughly 0.55x tiny in FLOPs, and m52nano's pv-hold is 0.8858 against m31's
+# 0.8832 - cheaper AND better. Every efficiency entry today used m31 and m33,
+# neither of which is best in its own price class.
+# 26 Aug 12:30 - twenty idle hours until the slot reset, and the efficiency
+# conclusion says the runtime lever is spent: gains now have to come from AUC at
+# the operating point. Every run below targets the cheapest price class, which
+# is where the frontier turned out to live.
+#
+# 1. A nano replicate. nano+nano costs 1.10 units against nano+m38's 1.55 -
+#    3.4 minutes at three series - and a second replicate of one recipe has paid
+#    +0.0009 before, where a third has not.
+# 2. A cheaper price class than any yet measured: nano at up192 is 0.40 units,
+#    below m52nano's 0.55. If accuracy holds it moves the whole frontier left.
+# 3. The other direction: nano at up288 is 0.91 units, still cheaper than the
+#    tiny-at-224 members used all day. Tests whether nano's deficit against tiny
+#    is capacity or resolution.
+# nano at up192 plateaus at 0.8780, inside the up224 nano range 0.8783-0.8800,
+# for 0.40 units against 0.55 - the resolution came free. A nano192 pair is 0.80
+# units, so three series costs 32.9 min against nano+m38's 37.1.
+# nano288 plateaus at 0.8838, the highest plateau measured here, at 0.91 units
+# against tiny224's 1.00 and 0.8758-0.8798. Nano's deficit was resolution, not
+# capacity. Does resolution keep paying? nano336 is 1.24 units.
+# 2026-09-04: one GPU pass over the shards that keeps every member's predictions,
+# so combination search stops costing a pass each. 25 submission-valid members.
+# 2026-09-04: the fold set. m31's exact recipe, five report-grouped folds, so
+# every one of the 4,349 pseudo-labelled studies is trained on by four of the
+# five members and held out by one. Two things have never been measured here:
+# training data the fixed split has always discarded, and ensemble diversity
+# that comes from the sample rather than from the recipe. Rank-average the five.
+# The instrument the fold set buys: unbiased predictions over all 4,349
+# pseudo-labelled studies, sixteen times pv-hold's sample, plus the 5-member
+# gold-58 mean that decides whether this goes to the board.
+# 2026-09-04: the recurrent aggregator. m31's recipe, one bidirectional GRU
+# layer over the slice sequence before the pool. m54attn tried self-attention
+# in the same slot and lost (0.8784 vs 0.8830), but self-attention has no
+# positional encoding here so it could not read slice ORDER at all; a GRU
+# cannot help but read it, and the order is anatomy. Recipe change, so pv-hold
+# decides and no slot is spent to find out.
+# 5-fold 앙상블의 gold. pv-hold 는 오염돼 무효 - gold 만 읽을 것.
+# 2026-09-04 21:10: the label-blend axis, re-asked with out-of-fold predictions
+# that are worth using. It was closed on m32blend40new (pv-hold 0.8808) - but
+# that blend was built from oof_predict.py, which trains 6 epochs and folds on
+# md5(StudyInstanceUID), so 197 studies sharing a report verbatim leaked across
+# its folds. The fold set gives 12-epoch models on report-grouped folds. Same
+# weight as m32blend40new, so the only variable is the quality of the OOF
+# predictions. Validation targets are untouched, so pv-hold decides and no slot
+# is spent. m48blend60 was the best of the old blends, hence the second weight.
+
+# 6 September 14:30. The card has been idle since m66blend60oof finished on the
+# 5th at ~01:00 - 37 hours, against the standing rule of 12. The runner was up
+# and healthy the whole time; the queue was empty. Same failure as the six-day
+# and eight-day gaps: nobody decided what to put in it.
+#
+# The board while we idled: 0.947 was rank 10 on 1 September, rank 22 today.
+# The 10th-place line has gone 0.942 -> 0.949 since 20 August, about +0.0004 a
+# day, and our score has not moved since 23 August.
+#
+# 1. m64gru is the only clean member built since preds_pool.npz was written
+#    (m63f* trained across the fixed split's held-out half, m65/m66 inherited
+#    that view through oof_folds.parquet - all four are void for pv-sel and
+#    pv-hold). It matches m31 on gold (0.9148 vs 0.9148) and is flat on pv-hold
+#    (0.8825 vs 0.8832), so as a solo it is nothing. The open question is
+#    whether a GRU slice aggregator FAILS differently from the mean-pooled
+#    members, which is the only property that has ever paid in an ensemble here.
+#    Inference only, ~5 minutes, no training.
+# 2. Does the search pick m64gru up once it can see it? --keep pins the four
+#    incumbent members so the question is "what does m64gru ADD", not "what
+#    scores highest" - the unconstrained search answers that with a nano roster
+#    the board has refused three times (27 Aug, and again in the 4 Sep re-run).
+
+# 3. Added 6 September 15:05. The joint-centred crop was chosen as the main bet
+#    for the remaining 46 days, on the grounds that the crop is the only axis
+#    that has ever moved this board (+0.012 physical-scale crop and laterality,
+#    +0.029 operating-point match). It has two premises and neither had been
+#    measured: that the anatomy sits off-centre, and that it occupies much less
+#    than the 130 mm the window spends on it. src/saliency_probe.py answers both
+#    from checkpoints we already own - a backward pass per series, no training
+#    and no submission slot - and reports against TWO nulls: the uniform map
+#    (geometry) and the same architecture with random weights (a convnet's own
+#    centre bias, which padding produces before any anatomy is involved).
+#
+#    On eight series it already says the first premise is dead - the saliency
+#    centroid sits 3.7 mm from the frame centre against a control's 2.5 - and
+#    the second is alive: the central 100 mm box holds 0.797 of the trained
+#    model's saliency against 0.678 for the control and 0.586 for uniform. Run
+#    it properly before acting on eight series.
+
+# 4. Added 6 September 14:40, off the saliency probe at n=1200 (m31newshards).
+#    Both premises of the crop bet are now measured against a random-weight
+#    control of the same architecture, which carries a convnet's centre bias
+#    and no learning:
+#
+#      saliency centroid, median distance from frame centre
+#        trained 5.98 mm    control 4.92 mm    <- premise 1 DEAD. The model's
+#        attention is as centred as an untrained one's; re-centring has nothing
+#        to recover, so the experiment is NOT joint-centring.
+#
+#      share of saliency inside a centred box   trained / control / uniform
+#        100 mm   0.786 / 0.663 / 0.586         <- learning adds +0.123
+#         80 mm   0.609 / 0.446 / 0.381         <- learning adds +0.163
+#         60 mm   0.395 / 0.257 / 0.212         <- learning adds +0.138
+#
+#    So the experiment is NARROWING, and it splits into a cost and a benefit.
+#    The benefit - more real pixels on the same anatomy - needs a rebuild from
+#    the DICOMs on Kaggle (2.5 h) and cannot be had locally, because these
+#    shards were already resampled to 130 mm / 256 px. The COST can be measured
+#    right now for the price of two trainings: --crop-mm re-crops the shards
+#    and changes nothing else, so it isolates what the discarded band was worth
+#    with the benefit held out. If narrowing is close to free, the rebuild's
+#    upside is unopposed and it goes to Kaggle next.
+#
+#    Two widths, not one. Replicate spread on pv-hold is ~0.005 and a single
+#    gap that size is not a result; a monotone trend over 130 -> 100 -> 80 is.
+#    Read gold alongside pv-hold: this is a representation change, so pv-hold
+#    can be trusted to show a LOSS (agreement with the same teacher on the same
+#    studies falls) but not to show a gain.
+
+# 5. Added 6 September 15:50, to run after m68crop80.
+#    src/ensemble.py now reads crop_px out of each member's cfg and centre-crops
+#    the shared 256px volume before its resize, exactly as train_image.py does
+#    and exactly as submit_kernel.py's member_input would have to. Without this
+#    a narrowed member is fed the full 130 mm frame it never trained on and the
+#    number that comes back is the mismatch, not the model - the same silent
+#    failure that made every pre-crop-fix checkpoint unscoreable.
+#
+#    Read the search output with one correction in mind: pv-sel and pv-hold
+#    UNDERRATE a narrowed member, because a crop is a representation change and
+#    both sides of that comparison move together. gold is the co-read here, and
+#    it needs 0.008 to speak. If the search wants the crop members despite the
+#    handicap, that is a stronger signal than the number looks.
+
+# 6. Added 6 September 16:00, correcting the rebuild plan written 20 minutes ago.
+#    A crop does not change px/mm - 130mm/256px and 100mm/197px are both 1.97
+#    px/mm - so the binding constraint on detail is --size 128, not the shards.
+#
+#      m31          256 -> 128 over 130mm    0.98 px/mm at the backbone
+#      m67crop100   197 -> 128 over 100mm    1.28 px/mm      (1.3x, already)
+#      this run     197 -> 192 over 100mm    1.92 px/mm      (2.0x, no rebuild)
+#
+#    So the Kaggle rebuild is NOT required to buy real detail; the 256px shards
+#    already carry 197px of a 100mm window and only --size was throwing it away.
+#    m67 lost 21% of the field of view and gained 1.3x detail and came out level,
+#    which cannot distinguish "the two cancelled" from "both are null". Holding
+#    the field of view at 100mm and doubling detail against m67 separates them.
+#
+#    --stream rather than a cache: a 32x192 cache is 28.7GB and the disk is the
+#    constraint on everything else queued after this.
+
+# 7. Added 6 September 19:15, with the card 7 epochs into m69crop100real and
+#    nothing behind it. The crop members did NOT earn a place in the incumbent
+#    ensemble - m67crop100 moves it +0.0003 pv-sel, -0.0001 pv-hold, -0.0007
+#    gold, and neither crop member appears in the exhaustive top 20 of 28. So a
+#    member that is EQUAL but built on narrower pixels fails the same way m31
+#    does, which is what a crop of the same image should be expected to do.
+#    The live question is whether a member built on DIFFERENT pixels - the same
+#    100 mm at twice the density - fails differently, and that is m69.
+
+# 7a. What m69 adds, measured the same way m67 was, so the two are comparable.
+
+# 7b. The control m69 needs. m69 changes TWO things against m31 - the window
+#     (130 -> 100 mm) and the density (128 -> 192 px). m67 isolated the window
+#     and found it free, so m69 minus m67 isolates the density. But "real
+#     resolution ties upsampled 224" is on the closed list, decided at 130 mm on
+#     the OLD pre-crop-fix shards and on pv-hold alone - which is the wrong
+#     instrument for a representation change and the wrong data. This is that
+#     axis re-run properly: full 130 mm, size 192, corrected shards. If it ties
+#     m31 while m69 beats m67, density pays only once the window is narrowed,
+#     which is a different and more useful claim than either run alone.
+
+# 7c. The replicate rule 2 demands. Any gap under 0.005 on pv-hold between m69
+#     and m67 is not a result without this, and the card would otherwise idle
+#     overnight - which has cost this project more than any experiment on it.
+
+# 7b and 7c REMOVED 6 September 20:20, unrun, because m69crop100real answered
+# the question they were conditional on. m70full192 was to run only if density
+# paid at 100 mm - "if it ties m31 while m69 beats m67, density pays only once
+# the window is narrowed". m69 did not beat m67 (0.881/0.911 against
+# 0.881/0.912), so the conditional is void and m70 would spend 2.7 hours
+# measuring an axis that two independent readings now call flat. m71crop100s1
+# was the replicate rule 2 demands for a gap under 0.005; the gap is 0.000, and
+# rule 2 protects against calling a small difference a result, not against
+# calling a zero a zero.
+
+# 8. Added 6 September 20:25, off src/label_quality.py against the incumbent's
+#    per-finding gold AUCs. THE MODEL HAS ALREADY PASSED ITS TEACHER:
+#
+#      macro   teacher 0.900   incumbent ensemble 0.919
+#      above the teacher on 8 of 12, below on 4 (ACL, MCL, Medial Meniscus,
+#      PF OA) - which are the four the teacher reads best from text
+#
+#    And the remaining error is not spread evenly. It is four findings:
+#
+#      finding            teacher   incumbent
+#      Synovitis           0.786      0.822
+#      Lateral OA          0.818      0.822
+#      Lateral Meniscus    0.865      0.881
+#      PF OA               0.911      0.883
+#      the other eight               0.918-0.981
+#
+#    The metric is a macro mean over 12 AUCs, so a point on Synovitis is worth
+#    exactly what a point on ACL is worth - and the loss spends the same
+#    capacity on both. Nothing in this project has ever weighted the loss per
+#    finding; pos_weight was about class imbalance inside a finding, not across
+#    findings. This is a recipe change, so pv-hold decides it and no submission
+#    is needed to read it.
+#
+#    On the objection that the four were chosen by looking at gold: they are the
+#    four weakest on the teacher's text-derived labels, on m31's gold column, and
+#    on the incumbent ensemble's, by a wide margin on all three. What is being
+#    chosen from gold is which experiment to run, not which checkpoint wins -
+#    and the verdict comes from pv-hold, which no part of this touched.
+
+# 9. Added 6 September 20:35. The crop widths showed that a dose-response over
+#    three points is worth far more than one gap: 130/100/80 mm settled an axis
+#    that no single pair of runs could have. Same design here. 1x is every model
+#    ever trained in this project, m72fw2 is 2x, and this is 4x. If the weights
+#    do nothing at 4x they do nothing; if 2x and 4x both move the weak findings
+#    monotonically that is a trend rather than a run; if 4x overshoots there is
+#    an optimum between them and the strong findings are paying for it.
+
+# 10. The replicate rule 2 demands, queued rather than decided later, because
+#     the alternative is an idle card overnight and that has cost this project
+#     more than any experiment on it. If m72 and m73 both land inside the
+#     0.877-0.881 band this is a null and the replicate says so with authority;
+#     if either clears it, a single run at that size is not a result without it.
+
+# 11. Added 7 September 00:15. The 0.877-0.881 band is now the single most
+#     load-bearing number in this project - it decided the three crop widths and
+#     the three finding-weight runs, and it will decide whatever comes next - and
+#     it rests on two runs. A third seed of the same recipe turns two samples
+#     into something with a spread. It is also the cheapest thing on the board
+#     that makes every future comparison sharper rather than answering one
+#     question once.
+
+# 12. The roster has never been searched past six members. Members are close to
+#     free on the main track - only the efficiency track pays for them - and the
+#     greedy stopped at six because the flag said six, not because it ran out of
+#     gains. Seconds, no GPU, and it is the last unexamined corner of the
+#     ensemble question before the roster is declared closed for good.
+
+# ============================================================================
+# 13. Added 18 September 13:55, after eleven days of an idle card. The board
+#     moved 0.947 -> our rank 59 while nothing ran: the 10th-place line is now
+#     0.953 and we have not submitted since 23 August. Everything below is on
+#     the main track only.
+#
+#     THE AUGMENTATION MIRRORS A FRAME THE PREPROCESSING SPENT WORK
+#     STRAIGHTENING, AND NO LABEL MOVES WITH IT.
+#
+#     volume.py normalises laterality: every right knee is mirrored (coronal,
+#     axial) or slice-reversed (sagittal) onto a canonical left frame, so that
+#     "medial" is a fixed direction in the cached array. That fix is why the
+#     shards were rebuilt in August. train_image.py's augment() then flips the
+#     width axis at p=0.5 and the target is untouched. Five of the twelve
+#     columns name a side - Medial/Lateral Meniscus, Medial/Lateral OA, MCL -
+#     so half of every epoch since the rebuild has shown the model a mirrored
+#     knee wearing unmirrored side labels.
+#
+#     The shape predicted by that bug is the shape on file. Lateral OA and
+#     Lateral Meniscus are the two weakest side-specific columns on every
+#     instrument this project owns, and the forum's 0.903 writeup reports the
+#     same two columns as its weakest with image AUC BELOW its own report-target
+#     AUC - the signature of a model that cannot tell the sides apart rather
+#     than of labels that do not carry them.
+#
+#     This is a recipe change with the representation fixed, so pv-hold judges
+#     it, against the four-seed band 0.8785-0.8836 (sd 0.0024, 2sd = 0.005).
+#     One run cannot clear that band; two can, which is why both seeds are
+#     queued before anything else.
+
+# 14. The other half of the same question, queued now rather than decided after
+#     item 13 lands, because the alternative is an idle card and that has cost
+#     this project more than any experiment on it. If the mirror is worth having
+#     as an augmentation it is worth having with the labels moved to match: a
+#     mirrored knee's medial meniscus IS its lateral meniscus. --flip-swap keeps
+#     the mirror and swaps the two side-paired column pairs.
+#
+#     MCL has no lateral counterpart in the label set, so that one column stays
+#     wrong under a mirror whatever this does. Three outcomes are informative:
+#     no-flip wins and flip-swap does not (the mirror was never worth it here),
+#     both win about equally (the bug was the labels, not the mirror), or
+#     flip-swap wins by more (the mirror is real augmentation once corrected).
+
+# 15-18. Added 19 Sep 01:30, card idle since 20:17 and the queue empty since.
+#     The other two thirds of the augmentation stack, measured together.
+#
+#     augment() is three things: the flip (now measured at zero, five runs),
+#     a zoom jitter (0.85-1.0, p=0.5) and a gain/offset jitter (p=0.5). The
+#     docstring justifies the latter two as pushing back overfitting - "every
+#     pretrained run peaks at epoch 5 of 8 and then falls" - and that claim has
+#     never been tested against an instrument with a known spread. Runs still
+#     peak at epoch 5-9 of 12 with them on, so it is testable and not settled.
+#
+#     Dropping --aug leaves the flip in (make_batch's elif still flips at p=0.5
+#     when --no-flip is absent) and takes the other two off together. So this is
+#     the remaining stack against the same four-seed band 0.8785-0.8836, flip
+#     held constant, nothing else touched. Recipe change, pixels unchanged:
+#     pv-hold judges, gold gets a weak vote.
+#
+#     Four seeds, not two. This file's own rule since 7 September: three
+#     replicates agreeing is one draw from the spread, not a measurement of it,
+#     and the baseline this is compared against has four.
+#
+#     The ablation is deliberately joint rather than one-at-a-time. If the two
+#     together cannot clear 0.005 there is nothing for a per-component split to
+#     find, and the result closes the axis instead of subdividing it. Only a
+#     group effect that clears the band buys the --no-zoom / --no-jitter flags
+#     that would separate them.
+#     Trimmed 19 Sep 01:40, two seeds instead of four. The Oct 1 target makes
+#     five hours of card time on an axis that is expected to read zero the wrong
+#     trade: two seeds is the minimum that can clear the band at all (the same
+#     design the flip-swap arm ran on), and if the pair shows anything real the
+#     other two seeds are one line each to add back. m83noaugs2 and m84noaugs3
+#     removed, not answered.
+
+# 19-20. Added 19 Sep 01:35. Tell the model what KIND of series it is looking at.
+#     Measured tonight on m38seed1, with the averaging count held fixed: an
+#     FS/fluid-sensitive series is worth +0.0118 macro more than a random series
+#     of the same study, a non-FS one -0.0186. Plane, by the same control, is
+#     worth -0.0014 / -0.0036 / +0.0050 - nothing. So the flag is the axis and
+#     the plane is not, which is the opposite of what the old plane probe was
+#     read as saying.
+#
+#     Re-weighting the study mean by that flag was tried first and returns
+#     +0.0006 held out across both half-splits, with the fitted weight jumping
+#     0.25 -> 0.65 between halves. The weak series pay for themselves by failing
+#     differently; removing them removes the diversity too.
+#
+#     So put the fact inside the model instead: a zero-initialised embedding on
+#     the pooled feature, keyed by plane x flag (6 classes). The model keeps
+#     every series and can shift a prediction per finding and per image rather
+#     than by one scalar. Both columns ship in test_series.csv, so this needs no
+#     DICOM tags and no shard rebuild at inference.
+#
+#     Pixels unchanged and targets unchanged, so pv-hold judges it against the
+#     four-seed band 0.8785-0.8836 (2sd = 0.005). Two seeds.
+
+# 23. Added 19 Sep 14:10, at the top of the queue: the pivot. Reproduce the way
+#     the public notebooks train a ViT, on the backbone this project already
+#     wrote off.
+#
+#     Pulled maverickss26/rsna-knee-0941-restructured. It is not a single model
+#     - it is a blend of DINO + A5 folds + RadImageNet + CoAtNet arms with
+#     per-finding weights probed against the public split, and its parent scores
+#     0.939 - so it is not a recipe to copy wholesale, and our 0.948 is above it.
+#     What is worth taking is the training regime of its DINO arm:
+#
+#         LR_HEAD 1e-3   LR_BACKBONE 8e-6   UNFREEZE_LAST 6   (ratio 125:1)
+#
+#     Every DINOv2 run here used 3e-4 / 3e-5, whole backbone trainable, and
+#     scored 0.8500 / 0.8559 / 0.8634 against convnext's 0.883. A self-supervised
+#     ViT fine-tuned at 10:1 is being overwritten rather than adapted, so those
+#     three runs may have measured the schedule and not the backbone. That is a
+#     cheap thing to find out and it is the only untested route to a member that
+#     fails differently: every member of the roster is convnext_tiny.
+#
+#     This is m36dinolr's exact command with the regime swapped and nothing else
+#     touched, so the comparison is against its 0.8634.
+
+
+# 21-22. Added 19 Sep 13:40. Two more seeds of --cond planeflag, because two is
+#     not enough to read +0.0030 and the card has been idle since 06:07.
+#     m85cond 0.8822 / m86conds1 0.8880 against the four-seed band mean 0.8821:
+#     the group mean is +0.0030 on an instrument whose 2sd is 0.005, and one of
+#     the two is the highest single pv-hold this recipe family has posted. That
+#     is exactly the shape this file has been fooled by twice - three seeds
+#     landing tight is one draw - so it gets four seeds like the baseline it is
+#     being compared to, or it gets closed.
+#     Closed 19 Sep 17:15 without the third and fourth seeds. The six-member
+#     measurement landed while these were queued: the incumbent four plus both
+#     conditioned members score pv-sel 0.9073 / pv-hold 0.8899 / gold 0.9182,
+#     against the incumbent four's 0.9067 / 0.8880 / 0.9200 and the SUBMITTED
+#     seven's 0.9084 / 0.8904 / 0.9219. As a member it is +0.0019 pv-hold on the
+#     four, below the roster already on the board, and negative on gold. Two
+#     seeds is where this axis stops; m87conds2 was killed mid-run and m88conds3
+#     never started.
+
+# 24-25. Added 19 Sep 17:18, behind m89dinofrz so the card does not empty again.
+#     Whatever m89 scores solo, the question that decides a slot is what it adds
+#     to a roster made entirely of convnext_tiny - and that is a separate
+#     question from its solo score, measured here four times now. So the
+#     ensemble measurement runs first, before any more training.
+#
+#     Then the notebook's other arm. It trains r224 and r336 and blends them;
+#     224 is cheaper and gives both a second seed of the regime and a second
+#     member. If m89 lands near the convnext band, these two are the start of a
+#     real second family; if it lands at 0.86 like the three before it, the
+#     schedule was not the problem and the DINO axis closes for good.
+# DINOv2 의 앙상블 기여. 단독 점수로는 안 보이는 값이고(m64gru 가 그 사례),
+# 이 두 모델은 유일한 비-convnext 라 다르게 틀릴 사전 확률이 가장 높다.
+# 기준: 기존 4멤버 단독 gold 0.9203.
+
+# 26-30. Added 20 Sep 00:40. The regime was the problem, not the backbone.
+#
+#     m89dinofrz  pv-hold 0.8779  pv-sel 0.9012  gold 0.9181
+#     m90dino224  pv-hold 0.8766  pv-sel 0.9016  gold 0.9112
+#     m36dinolr   pv-hold 0.8634  pv-sel 0.8794  gold 0.8958   <- same backbone,
+#                                                                 old regime
+#
+#     +0.014 pv-hold and +0.022 on both pv-sel and gold, twice, at two
+#     resolutions. Two sd is 0.005. The three DINO runs that closed this axis in
+#     August measured a learning rate schedule, not a backbone: 3e-4/3e-5 over
+#     the whole ViT overwrites what DINOv2 knows, and 1e-3/8e-6 with the first
+#     six blocks frozen does not. The axis reopens.
+#
+#     Against the incumbent four, one DINO member is pv-sel +0.0018 / pv-hold
+#     +0.0007 / gold +0.0000; both are +0.0028 / +0.0005 / +0.0008. pv-sel is
+#     the highest a roster has posted here, pv-hold barely moves and is still
+#     under the submitted seven's 0.8904. So the roster question is open and the
+#     next four lines settle it rather than guessing: measure the SUBMITTED
+#     seven with both DINOs in it, then put them in the pool and search with the
+#     drop list, which is the flag that separates a candidate from a
+#     demonstration of pv-hold's known failure mode.
+#     And a second seed of the winner, because one run of a new regime is one
+#     draw and this file has been fooled by that twice. 336 rather than 224: it
+#     is the better of the two on gold by 0.007 and on pv-hold by 0.001.
+
+# 31-32. Re-queued 20 Sep 00:52. The first attempt at these two ran before the
+#     file each needed existed: two runners were live and launched the chain's
+#     four lines within seconds of each other, so merge_preds got no
+#     preds_dino.npz and ensemble_search got no preds_pool5.npz. The flock added
+#     since makes that particular race impossible; the ordering still depends on
+#     one runner taking one line at a time, which is what it now does.
+
+# 33. Added 20 Sep 01:20. The frozen regime on a second family that already has
+#     a fully-unfrozen run to be compared against. m22effv2
+#     (tf_efficientnetv2_s, 3e-4/3e-5, all trainable) scored pv-hold 0.8629 in
+#     August and was read as another family that does not work here - the same
+#     sentence DINOv2 got, from the same configuration. EfficientNet exposes
+#     .blocks, so --unfreeze-last needs no new code for it.
+#
+#     If this also comes back level, the August conclusion was never about
+#     backbones at all and the pool has been one family wide for a reason that
+#     is entirely ours.
+
+# 34-35. Added 20 Sep 02:20. Reopen the other two families August closed on the
+#     same schedule. Both were trained at 3e-4/3e-5 with everything trainable,
+#     exactly like the three DINO runs:
+#
+#       m23swin          swin_base      pv-hold 0.8517
+#       m51radimagenet   resnet50 RIN   pv-hold 0.8490
+#
+#     Honest caveat, recorded before the runs rather than after: the DINO
+#     argument was that too much fine-tuning overwrites a SELF-SUPERVISED
+#     representation, and neither of these is self-supervised - swin is
+#     in22k-supervised and RadImageNet is supervised on medical images. Freezing
+#     also bites differently here: the last 2 of 4 stages is 84.6M of swin's
+#     86.7M parameters, because these families put their weight at the end,
+#     where a ViT spreads it evenly. So what these two actually test is the
+#     125:1 learning-rate ratio, not the freezing, and a null result says
+#     nothing about the DINO finding.
+
+# 36. Added 20 Sep 07:45. Is the model scale-limited or pixel-limited? m33up336new's
+#     command at upsample 448 instead of 336, nothing else changed. Upsampling adds
+#     no information, so this separates "the backbone wants its pretraining scale"
+#     from "the shards do not contain the detail". Read the five fine-structure
+#     columns (ACL, MCL, Medial/Lateral Meniscus, PF OA), not the macro: those are
+#     the ones where the label knows and the model does not see it.
+
+# 37. Added 23 Sep 14:00. The plane x fat-sat key is a data trap the 4th-place
+#     holder's own thread (741310) names, and the crosstab confirms it here:
+#     "non-FS" holds 5,208 T1, 4,161 PD and 2,004 T2 series, so m85cond/m86conds1
+#     were told three different contrasts are the same kind of picture. --cond
+#     contrast keys on plane x contrast instead, split by TR/TE, 15 classes, all
+#     populated (min 241). m86conds1 is already the best solo pv-hold this project
+#     owns at 0.8873 on a key that is wrong; this asks what the right key is worth.
+#     Two seeds, because 2 sd on pv-hold is 0.005 and one run cannot clear it.
+
+# 38. Added 23 Sep 17:55. The contrast key is dead as an improvement over
+#     planeflag - two seeds each, 0.8837 vs 0.8851, against a seed spread of
+#     0.0064 - but CONDITIONING itself is not: four conditioned runs average
+#     0.8844 against the unconditioned four-seed band's 0.8810, about 1.5 sd,
+#     which two seeds cannot settle. Two more contrast seeds make it four and
+#     either resolves it or closes it. Contrast is the variant worth seeding
+#     rather than planeflag because TR and TE are plain DICOM tags, so the
+#     submission kernel can compute the class at inference, while
+#     Fat_Suppression is a derived competition column that it cannot.
+
+# 39. Added 27 Sep 20:45 after four idle days (queue ran dry 23 Sep 20:22).
+#     The 24 Sep Global96 bracket read 0.949/0.949/0.948/0.947 at w=.2/.3/.4/.5:
+#     a decorrelated partner at low weight is worth +0.001 on the board, the
+#     first move off 0.947/0.948 in a month. m51radimagenet is the in-house
+#     version (corr 0.839 to the ensemble, gold blend +0.0018 at w=0.2-0.3) but
+#     it is one seed. Seeds make it an arm rather than a lucky member, the way
+#     four m96 seeds settled the contrast question. m94radfrz (frozen, 0.8705)
+#     says keep the full fine-tune recipe.
+
+# 40. Added 28 Sep 00:50. m98radctr (RadImageNet + --cond contrast) reads pv-hold
+#     0.853-0.854 at ep 9-10 against 0.847/0.848 for the unconditioned seeds
+#     m97rads1/2 - about +0.006, larger than the +0.002 conditioning bought the
+#     convnext family. One seed cannot clear the 0.005 two-sd band, so two more,
+#     the same way the m96 contrast question was settled. Keeps the card busy
+#     while both submit kernels sit in Kaggle's queue.
+
+# 41. Added 28 Sep 02:55. Contrast conditioning splits the instruments on
+#     RadImageNet the same way on two seeds (pv-hold +0.007, gold -0.012), so the
+#     unconditioned recipe stays the member that ships until the board says
+#     otherwise. Two runs to widen that arm without asking the same question
+#     again: a third unconditioned seed, and the m37up288 resolution step
+#     (upsample 288) that was a keeper in the convnext family, applied here.
+
+# 42. Added 28 Sep 08:05. m99radup288 lost on both instruments (gold 0.8814,
+#     pv-hold 0.8388 vs 0.892/0.847 at 224), so resolution is closed for this
+#     family and contrast conditioning is split (gold -0.013, pv-hold +0.007 on
+#     three seeds each). The unconditioned 224 recipe is the one that ships;
+#     seeds 4 and 5 widen it while the RadImageNet share of the arm is priced.
+
+# 43. Added 28 Sep 13:05, after two idle hours (queue dry 11:00; the 09:29 check
+#     did not fire until 13:04). blend12rad (ens10nf + m51 + m97rads1, Global96
+#     w=0.20) scored 0.949 - the same as ens10nf + Global96 at w=0.20 - so two
+#     RadImageNet seeds did not move the board at its resolution. m89dinofrz is
+#     the other in-house decorrelated family and already ships in ens10nf as a
+#     single seed; seeding it tests whether that member is carrying variance or
+#     signal, and gives a second DINO member if the arm is cut down for speed.
+
+# 44. Added 28 Sep 16:12. m89dinofrzs1 replicates m89dinofrz (gold 0.9149 vs
+#     0.9181, pv-hold 0.8771 vs 0.8779), so the frozen-DINO recipe is stable, not
+#     a lucky seed. A third seed keeps two runs queued ahead (the rule since the
+#     11:00-13:05 idle) and completes a three-seed DINO arm to price against the
+#     single member ens10nf ships.
+
+# 45. Added 28 Sep 19:05 to keep a run queued behind m89dinofrzs3. Fourth DINO
+#     seed: if pub5 shows the public blend pays, the in-house arm is cut to a few
+#     members and a DINO pair is the likeliest to survive the cut.
+
+# 46. Added 29 Sep, approved by the administrator ("다해라"). The augmentation
+#     axis, second pass - the 4th-place protocol (thread 740610) says ablate the
+#     aug stack one change at a time, and this project only ever *removed* parts:
+#     19 Sep, --aug worth 0.0106 gold (3 sd), flip worth 0. Here the zoom and
+#     intensity halves are split, then four additions tried one at a time, two
+#     seeds each against the four-seed base (gold 0.9140, sd 0.0055). Effects
+#     under ~0.008 have vanished at three seeds before, so an arm counts only if
+#     gold AND pv-hold both rise by about that much; a winner gets a third seed.

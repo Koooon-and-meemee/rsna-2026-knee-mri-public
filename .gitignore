@@ -1,0 +1,33 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Competition data - re-downloadable from Kaggle, and not ours to redistribute
+data/
+
+# Teacher labels and derived tables under artifacts/ ARE tracked: they cost
+# real inference to produce and are the expensive part of this repo. Model
+# weights and image caches are not - add them here when they appear.
+*.pt
+*.pth
+*.safetensors
+artifacts/images/
+artifacts/merged/
+artifacts/lora/
+
+# Volume shards (36GB) and the decompressed training cache (12.8GB). Both are
+# rebuilt from the DICOMs by the preprocessing kernel and train_image.py.
+# Without these two lines `git add -A` walks 49GB and times out.
+artifacts/volumes/
+artifacts/volumes_precrop_bak/
+artifacts/cache/
+
+# Runner and training logs - durable on disk, not worth versioning.
+artifacts/logs/

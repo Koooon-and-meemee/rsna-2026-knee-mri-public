@@ -1,0 +1,20 @@
+# Answers from the operator, relayed by the myclaw assistant.
+# One per line:   Q<n>: <answer>
+# Questions live in artifacts/QUESTIONS.md. Last answer to a given Qn wins.
+Q2: a — 슬라이스 수 축 열기, 먼저 shard 다운로드 속도 측정 후 판단
+NOTE (not an answer to Q3): operator sent a screenshot of the official Efficiency Score
+page (kaggle.com rules tab), formula reads AUC/(Benchmark - maxAUC) + RuntimeSeconds/32400
+- matches your reverse-engineered structure. Screenshot was cut off before the "Benchmark
+is the ..." definition, so the value of Benchmark (you assumed 0.5) is still unconfirmed.
+If a "User:" line reading "[첨부 사진: ...]" landed as the positional answer to Q3, ignore
+it - it is this screenshot, not a directional choice. Q3 (a/b/c/d) is still open.
+Q3: a — architecture change, but narrowed: try a slice-transformer head first, not a
+from-scratch 3D CNN. MRNet benchmark (same-shape problem, self-attention over 2D-CNN
+slice features) scored 0.948 vs 0.923 for plain 2D and 0.937 for 3D CNN — beats both,
+and only the pooling head changes (AttentionPool -> small Transformer encoder + slice
+positional embedding -> CLS/attention pool), backbone untouched. Reference: "Medical
+Slice Transformer" (Sci Reports 2025, DINOv2 + slice transformer), arxiv 2604.26807
+(MIL benchmark for 3D volumes). Rationale for going now: current 0.947 main-track
+submission is unaffected by experimentation - it stays the standing entry regardless
+of what new runs produce, so there is no downside to trying this before the efficiency
+(b) research finishes. If it fails, fall back to (b)/(c).

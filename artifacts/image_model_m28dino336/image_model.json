@@ -1,0 +1,35 @@
+{
+ "gold_auc": 0.8800822368632074,
+ "pseudo_val": 0.8657795003274811,
+ "pseudo_val_holdout": 0.850035996019351,
+ "per_finding": {
+  "ACL": 0.9031862745098039,
+  "MCL": 0.8662131519274376,
+  "Medial Meniscus": 0.8978365384615385,
+  "Lateral Meniscus": 0.7726708074534161,
+  "Medial OA": 0.9612403100775193,
+  "Lateral OA": 0.7969052224371374,
+  "PF OA": 0.8314028314028313,
+  "Effusion": 0.9366459627329192,
+  "Synovitis": 0.7873357228195937,
+  "Baker's": 0.9655797101449276,
+  "Contusion": 0.941970310391363,
+  "Fracture": 0.9
+ },
+ "epoch": 14,
+ "cfg": {
+  "arch": "slicenet",
+  "backbone": "vit_small_patch14_dinov2.lvd142m",
+  "width": 24,
+  "size": 256,
+  "depth": 32,
+  "upsample": 336,
+  "lr": 0.0003,
+  "batch": 4,
+  "aug": true,
+  "stream": true,
+  "split_col": "split",
+  "cosine": true,
+  "pos_weight": false
+ }
+}
